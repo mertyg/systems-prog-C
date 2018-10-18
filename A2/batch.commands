@@ -1,0 +1,35 @@
+add_ta Ahmet
+add_ta Mehmet
+add_ta Battal
+add_ta Deniz 
+add_student Michelle CSC108
+add_student Jen CSC108
+sleep
+add_student Paul CSC148
+add_student Diane CSC165
+add_student Ahmet CSC148
+add_student Mert CSC165
+sleep
+print_all_queues
+print_currently_serving
+next Ahmet
+next Mehmet CSC165
+sleep
+add_ta Murat
+add_student Cem CSC165
+print_currently_serving
+print_all_queues
+sleep
+remove_ta Mehmet
+print_currently_serving
+stats_by_course CSC165
+sleep
+next Battal
+next Deniz
+add_student Cemil CSC108
+sleep
+next Battal
+give_up Cemil
+stats_by_course CSC108
+help
+quit
