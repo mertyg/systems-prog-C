@@ -31,7 +31,6 @@ int main(int argc, char **argv) {
             exit(1);
         }
     }
-
     // Open the directory provided by the user (or current working directory)
     DIR *dirp;
     if ((dirp = opendir(startdir)) == NULL) {
@@ -54,12 +53,12 @@ int main(int argc, char **argv) {
             strcmp(dp->d_name, ".git") == 0) {
                 continue;
         }
+        printf("%s\n",dp->d_name);
 
         strncpy(path, startdir, PATHLENGTH);
         strncat(path, "/", PATHLENGTH - strlen(path));
         strncat(path, dp->d_name, PATHLENGTH - strlen(path));
         path[PATHLENGTH - 1] = '\0';
-
         struct stat sbuf;
         if (stat(path, &sbuf) == -1) {
             // This should only fail if we got the path wrong
@@ -71,6 +70,7 @@ int main(int argc, char **argv) {
         // Only call run_worker if it is a directory
         // Otherwise ignore it.
         if (S_ISDIR(sbuf.st_mode)) {
+            //printf("%s",path);
             run_worker(path, STDIN_FILENO, STDOUT_FILENO);
         }
     }
