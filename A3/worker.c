@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <dirent.h>
-
 #include "freq_list.h"
 #include "worker.h"
 
@@ -90,7 +89,8 @@ FreqRecord *get_word(char *word, Node *head, char **file_names) {
     for(int i=0; i<MAXRECORDS && file_names[i]!=NULL; i++) {
         if(search->freq[i]!=0) {
             toAdd[j].freq = search->freq[i];
-            strncpy(toAdd[j].filename,file_names[j],PATHLENGTH);
+            strncpy(toAdd[j].filename,file_names[i],PATHLENGTH);
+            //printf("%s %s %d\n",toAdd[j].filename,search->word, search->freq[i]);
             j+=1;
         }
     }
@@ -119,7 +119,7 @@ void run_worker(char *dirname, int in, int out) {
     char **filenames = init_filenames();
     Node *head = NULL;
     FreqRecord *record_list;
-    int bytes_read, pos, written;
+    int bytes_read, pos;
     char current[MAXWORD];
     char index_path[PATHLENGTH];
     char name_path[PATHLENGTH];
@@ -142,11 +142,11 @@ void run_worker(char *dirname, int in, int out) {
         pos = 0;
         while(record_list[pos].freq!=0) {
             //for each valid record, write a FreqRecord to the out pipe.
-            written = Write_freq(out, &record_list[pos], sizeof(FreqRecord));
+            Write_freq(out, &record_list[pos], sizeof(FreqRecord));
             pos+=1;
         }
         //write the final record, having freq = 0 and filename = ""
-        written = Write_freq(out, &record_list[pos], sizeof(FreqRecord));
+        Write_freq(out, &record_list[pos], sizeof(FreqRecord));
         bytes_read = Read(in,current,MAXWORD);
     }
 }

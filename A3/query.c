@@ -5,7 +5,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 #include <dirent.h>
-
+#include <sys/wait.h>
 #include "freq_list.h"
 #include "worker.h"
 #define MAXPATHS 200
@@ -132,12 +132,16 @@ int main(int argc, char **argv) {
     FreqRecord *record = malloc(sizeof(FreqRecord));
     FreqRecord master_array[MAXRECORDS];
     int master_size, place;
+    char *check;
 
     while(1) {
         //Get the word from stdin. If CTRL+D is pressed, break.
-        r = read(STDIN_FILENO,input,MAXWORD);
-        if(r==0) break;
-        input[r-1]='\0';
+        //r = read(STDIN_FILENO,input,MAXWORD);
+        check = fgets(input,MAXWORD,stdin);
+        if(check==NULL) break;
+        //input[r-1]='\0';
+        r = strlen(input);
+        input[r-1] = '\0';
         master_size = 0;
 
         //refresh the master_array, we do not want anything remaining from the previous iteration.

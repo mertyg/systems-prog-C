@@ -53,7 +53,6 @@ int main(int argc, char **argv) {
             strcmp(dp->d_name, ".git") == 0) {
                 continue;
         }
-        printf("%s\n",dp->d_name);
 
         strncpy(path, startdir, PATHLENGTH);
         strncat(path, "/", PATHLENGTH - strlen(path));
