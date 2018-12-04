@@ -4,6 +4,7 @@
 #include <string.h>
 #include <time.h>
 #include "hcq.h"
+#define _GNU_SOURCE
 
 #define INPUT_BUFFER_SIZE 256
 #define INPUT_ARG_MAX_NUM 3  
@@ -31,7 +32,7 @@ int num_courses = 3;
 int process_args(int cmd_argc, char **cmd_argv) {
 
     int result;
-
+    char *print_str;
     if (cmd_argc <= 0) {
         return 0;
     } else if (strcmp(cmd_argv[0], "add_student") == 0 && cmd_argc == 3) {
@@ -43,11 +44,13 @@ int process_args(int cmd_argc, char **cmd_argv) {
             error("Invalid Course -- student not added.");
         }
     }  else if (strcmp(cmd_argv[0], "print_full_queue") == 0 && cmd_argc == 1) {
-        print_full_queue(stu_list);
-
+        print_str = print_full_queue(stu_list);
+        printf("%s",print_str);
+        free(print_str);
     } else if (strcmp(cmd_argv[0], "print_currently_serving") == 0 && cmd_argc == 1) {
-        print_currently_serving(ta_list);
-
+        print_str = print_currently_serving(ta_list);
+        printf("%s",print_str);
+        free(print_str);
     } else if (strcmp(cmd_argv[0], "give_up") == 0 && cmd_argc == 2) {
         if (give_up_waiting(&stu_list, cmd_argv[1]) == 1) {
             error("There was no student by that name waiting in the queue.");
@@ -100,6 +103,8 @@ int main(int argc, char* argv[]) {
     } else { // interactive mode 
         input_stream = stdin;
     }
+
+    
 
     printf("Welcome to the Help Centre Queuing System\nPlease type a command:\n>");
     

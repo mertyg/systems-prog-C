@@ -21,10 +21,23 @@ struct course{
     char code[7];
 };
 
+struct user {
+    int fd;
+    char role;
+    char *username;
+    int state;
+    char *buf;
+    char *after;
+    int inbuf;
+    int room;
+
+};
+
 
 typedef struct student Student;
 typedef struct course Course;
 typedef struct ta Ta;
+typedef struct user User;
 
 // helper functions not directly related to only one command in the API
 Student *find_student(Student *stu_list, char *student_name);
@@ -41,12 +54,12 @@ int remove_ta(Ta **ta_list_ptr, char *ta_name);
 //  if student is currently being served then this finishes this student
 //    if there is no-one else waiting then the currently being served gets
 //    set to null 
-int next_overall(char *ta_name, Ta **ta_list_ptr, Student **stu_list_ptr);
+int next_overall(char *ta_name, Ta **ta_list_ptr, Student **stu_list_ptr, User *users);
 
 // list currently being served by current TAs
-void print_currently_serving(Ta *ta_list);
+char* print_currently_serving(Ta *ta_list);
 
 // list all students in queue 
-void print_full_queue(Student *stu_list);
+char* print_full_queue(Student *stu_list);
 
 #endif

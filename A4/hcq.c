@@ -182,7 +182,7 @@ int remove_ta(Ta **ta_list_ptr, char *ta_name) {
  * it records the completion of the existing student (if any) and frees 
  * If ta_name is not in ta_list, return 1 and take no further action.
  */
-int take_student(Ta *ta, Student **stu_list_ptr, Student *to_serve) {
+int take_student(Ta *ta, Student **stu_list_ptr, Student *to_serve, User *users) {
 
     // find student being served if any and release
     Student *servee = ta->current_student;
@@ -195,10 +195,20 @@ int take_student(Ta *ta, Student **stu_list_ptr, Student *to_serve) {
     //  if there is a new servee then remove them from the waiting queue
     //  but don't free the memory since they have just moved to the being
     //  served data structure
+    int idx = -2;
     if (to_serve != NULL) {
         route_around_overall(stu_list_ptr, to_serve); 
     }
-    return 0;
+    if(to_serve != NULL){
+        idx = 0;
+        while(1){
+            if(users[idx].username!=NULL)
+                if(strcmp(users[idx].username,to_serve->name)==0)
+                    break;
+            idx+=1;
+        }
+    }
+    return idx;
 }
 
 /* TA ta_name is finished with the student they are currently helping (if any)
@@ -208,45 +218,93 @@ int take_student(Ta *ta, Student **stu_list_ptr, Student *to_serve) {
  * and sets current_student for this TA to NULL.
  * If ta_name is not in ta_list, return 1 and do nothing.
  */
-int next_overall(char *ta_name, Ta **ta_list_ptr, Student **stu_list_ptr) {
+int next_overall(char *ta_name, Ta **ta_list_ptr, Student **stu_list_ptr, User *users) {
     //  find next student to serve  -- this is just the head of stu_list
     Student *to_serve_next = *stu_list_ptr;
     // find ta by name in ta_list
     Ta *ta = find_ta(*ta_list_ptr, ta_name);
     if (ta == NULL) {
-        return 1;
+        return -1;
     }
-    return take_student(ta, stu_list_ptr, to_serve_next);
+    return take_student(ta, stu_list_ptr, to_serve_next,users);
 }
 
 
 // print a message about which TAs are serving which students
-void print_currently_serving(Ta *ta_list) {
+char* print_currently_serving(Ta *ta_list) {
+    int total_length = 0;
+    char* buf;
+    char *print_str;
     if (ta_list == NULL) {
-        printf("No TAs are currently working.\n");
-        return;
+        buf = "No TAs are currently working.\n";
+        print_str = malloc(sizeof(char)*(strlen(buf)+10));
+        strcpy(print_str,buf);
+        return print_str;
     }
-    while (ta_list != NULL) {
-       if (ta_list->current_student != NULL) {
-           printf("TA: %s is serving %s.\n",
-                ta_list->name,
-                ta_list->current_student->name);
+    Ta *head = ta_list;
+    while (head != NULL) {
+       if (head->current_student != NULL) {
+           asprintf(&buf,"TA: %s is serving %s.\n",
+                head->name,
+                head->current_student->name);
+           total_length+=strlen(buf);
+           free(buf);
        } else {
-           printf("TA: %s has no student\r\n", ta_list->name);
+        asprintf(&buf,"TA: %s has no student\n", head->name);
+        total_length+=strlen(buf);
+        free(buf);
        }
-       ta_list = ta_list->next;
+       head = head->next;
     }
+    total_length+=10;
+    print_str = malloc(sizeof(char)*total_length);
+    for(int i=0;i<total_length;i++)
+        print_str[i]='\0';
+    head = ta_list;
+    while (head != NULL) {
+       if (head->current_student != NULL) {
+           asprintf(&buf,"TA: %s is serving %s.\n",
+                head->name,
+                head->current_student->name);
+           strcat(print_str,buf);
+           free(buf);
+       } else {
+        asprintf(&buf,"TA: %s has no student\n", head->name);
+        strcat(print_str,buf);
+        free(buf);
+       }
+       head = head->next;
+    }
+    return print_str;
 }
 
 /*  Print a list of all the students in the queue. This does not
  *    print students currently being served. 
  */ 
-void print_full_queue(Student *stu_list) {
-    printf("Full Queue\n");
-    while (stu_list != NULL) {
-        printf("Student %s:%s\n",stu_list->name, stu_list->course->code);
-        stu_list = stu_list->next_overall;
+char* print_full_queue(Student *stu_list) {
+    int total_length=0;
+    Student *head = stu_list;
+    char *buf;
+    while (head != NULL) {
+        asprintf(&buf,"Student %s:%s\n",head->name, head->course->code);
+        total_length+= strlen(buf);
+        free(buf);
+        head = head->next_overall;
     }
+    total_length+=(strlen("Full Queue")+1);
+    total_length+=10;
+    char *print_str = malloc(sizeof(char)*total_length);
+    for(int i=0;i<total_length;i++)
+        print_str[i]='\0';
+    strcat(print_str,"Full Queue\n");
+    head = stu_list;
+    while (head != NULL) {
+        asprintf(&buf,"Student %s:%s\n",head->name, head->course->code);
+        strcat(print_str,buf);
+        free(buf);
+        head = head->next_overall;
+    }
+    return print_str;
 }
 
 
